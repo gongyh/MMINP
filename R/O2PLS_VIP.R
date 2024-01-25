@@ -157,10 +157,14 @@ calOrthVIP <- function(SSDAO, SSD, loading){
   ao <- ncol(loading)
   load2 <-  loading^2
 
+  cl <- makeCluster(getOption("cl.cores", 48))
+  
   orthVIP <- (sapply(1:ao, function(n){
     sqrt( load2[, n] * SSDAO[n] / sum(SSD) )
-  })) %>% norm(type="2")
+  })) %>% parApply(cl=cl, 1, norm, type="2")
 
+  stopCluster(cl)
+  
   return(orthVIP)
 }
 
@@ -173,9 +177,13 @@ calPredVIP <- function(SSXAP, SSYAP, SSD, loading){
   ap <- ncol(loading)
   load2 <-  loading^2  #matrixcalc::hadamard.prod(loading, loading) == loading^2
 
+  cl <- makeCluster(getOption("cl.cores", 48))
+  
   predVIP <- (1/ap * sapply(1:ap, function(n){
     sqrt( (load2[, n] * SSXAP[n] + load2[, n] * SSYAP[n]) / sum(SSD) )
-  })) %>% norm(type="2")
+  })) %>% parApply(cl=cl, 1, norm, type="2")
 
+  stopCluster(cl)
+  
   return(predVIP)
 }
