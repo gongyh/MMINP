@@ -23,7 +23,8 @@ Imports:
     OmicsPLS (>= 2.0.2),
     utils,
     stats,
-    forecast
+    forecast,
+    parallel
 Suggests: 
     rmarkdown,
     knitr,
