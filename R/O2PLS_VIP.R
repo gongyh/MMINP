@@ -158,10 +158,8 @@ calOrthVIP <- function(SSDAO, SSD, loading){
   load2 <-  loading^2
 
   orthVIP <- (sapply(1:ao, function(n){
-    load2[, n] * SSDAO[n]
-  }) / sum(SSD)) %>%
-    sqrt %>%
-    apply(1, norm, type = "2")
+    norm( sqrt( load2[, n] * SSDAO[n] / sum(SSD) ), "2" )
+  }))
 
   return(orthVIP)
 }
@@ -176,10 +174,8 @@ calPredVIP <- function(SSXAP, SSYAP, SSD, loading){
   load2 <-  loading^2  #matrixcalc::hadamard.prod(loading, loading) == loading^2
 
   predVIP <- (1/ap * sapply(1:ap, function(n){
-    load2[, n] * SSXAP[n] + load2[, n] * SSYAP[n]
-  }) / sum(SSD)) %>%
-    sqrt %>%
-    apply(1, norm, type = "2")
+    norm( sqrt( (load2[, n] * SSXAP[n] + load2[, n] * SSYAP[n]) / sum(SSD) ), "2" )
+  }))
 
   return(predVIP)
 }
