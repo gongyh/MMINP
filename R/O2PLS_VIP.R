@@ -129,11 +129,15 @@ O2PLSvip <- function(x, y, model){
   predVIPyx <- predVIPyx0 * sqrt(ncol(y))
 
   #step6: a total VIPO2PLS for each data block
+  cl <- makeCluster(getOption("cl.cores", 48))
+  
   totVIPxy <- (orthVIPx0^2 + predVIPxy0^2) %>% sqrt %>%
-    lapply(norm, type = "2") %>% unlist * sqrt(ncol(x))
+    parLapply(cl=cl, norm, type="2") %>% unlist * sqrt(ncol(x))
 
   totVIPyx <- (orthVIPy0^2 + predVIPyx0^2) %>% sqrt %>%
-    lapply(norm, type = "2") %>% unlist * sqrt(ncol(y))
+    parLapply(cl=cl, norm, type="2") %>% unlist * sqrt(ncol(y))
+  
+  stopCluster(cl)
 
   # results
   xvip <- data.frame(orthVIPx, predVIPxy, totVIPxy, check.names = FALSE)
