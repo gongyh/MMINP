@@ -5,6 +5,7 @@
 #' both X and Y data blocks, it generates VIP profiles for (i) the predictive
 #' part of the model, (ii) the orthogonal part, and (iii) the total model.
 #' @importFrom magrittr %>%
+#' @importFrom parallel makeCluster parApply stopCluster parLapply detectCores
 #' @param x Training data of sequence features' relative abundances.
 #' Must have the exact same rows (subjects/samples) as \code{y}.
 #' @param y Training data of metabolite relative abundances.
@@ -129,7 +130,7 @@ O2PLSvip <- function(x, y, model){
   predVIPyx <- predVIPyx0 * sqrt(ncol(y))
 
   #step6: a total VIPO2PLS for each data block
-  cl <- makeCluster(getOption("cl.cores", 48))
+  cl <- makeCluster(getOption("cl.cores", detectCores()))
   
   totVIPxy <- sqrt(orthVIPx0^2 + predVIPxy0^2) %>%
     parLapply(cl=cl, norm, type="2") %>% unlist * sqrt(ncol(x))
@@ -161,7 +162,7 @@ calOrthVIP <- function(SSDAO, SSD, loading){
   ao <- ncol(loading)
   load2 <-  loading^2
 
-  cl <- makeCluster(getOption("cl.cores", 48))
+  cl <- makeCluster(getOption("cl.cores", detectCores()))
   
   orthVIP <- (sapply(1:ao, function(n){
     sqrt( load2[, n] * SSDAO[n] / sum(SSD) )
@@ -181,7 +182,7 @@ calPredVIP <- function(SSXAP, SSYAP, SSD, loading){
   ap <- ncol(loading)
   load2 <-  loading^2  #matrixcalc::hadamard.prod(loading, loading) == loading^2
 
-  cl <- makeCluster(getOption("cl.cores", 48))
+  cl <- makeCluster(getOption("cl.cores", detectCores()))
   
   predVIP <- (1/ap * sapply(1:ap, function(n){
     sqrt( (load2[, n] * SSXAP[n] + load2[, n] * SSYAP[n]) / sum(SSD) )
